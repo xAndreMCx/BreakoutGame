@@ -1,12 +1,10 @@
 #include <GLAD/gl.h>
 #include <GLFW/glfw3.h>
 
-
 const GLuint WIDTH = 800, HEIGHT = 600;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, GL_TRUE);
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
 int main(void) {
@@ -27,7 +25,7 @@ int main(void) {
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
 
-    glClearColor(0.7f, 0.9f, 0.1f, 1.0f);
+    glClearColor(0.3f, 0.1f, 0.7f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glfwSwapBuffers(window);
