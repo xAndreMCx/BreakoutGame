@@ -1,11 +1,10 @@
 #pragma once
+#include <vector>
+
+#include "Game/level.h"
 
 namespace Game {
-enum State {
-  ACTIVE,
-  MENU,
-  WIN
-};
+enum class State { ACTIVE, MENU, WIN };
 
 class Game {
 private:
@@ -13,6 +12,8 @@ private:
   bool m_Keys[1024];
   unsigned int m_Width;
   unsigned int m_Height;
+  unsigned int m_Level;
+  std::vector<Level> m_Levels;
 
 public:
   Game(unsigned int width, unsigned int height);
@@ -22,6 +23,9 @@ public:
   void ProcessInput(float deltaTime);
   void Update(float deltaTime);
   void Render();
+
+  unsigned int GetWidth() const;
+  unsigned int GetHeight() const;
 };
 
 } // namespace Game
