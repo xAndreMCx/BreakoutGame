@@ -2,21 +2,21 @@
 
 #include <GLAD/gl.h>
 
-#include <cassert>
 #include <iostream>
-
+#define _DEBUG
 #ifdef _DEBUG
   #define GLCallV(x) \
     GLClearErrors(); \
     x;               \
-    assert(GLLogCall(#x, __FILE__, __LINE__))
+    if (GLLogCall(#x, __FILE__, __LINE__)) __builtin_trap();
 
-  #define GLCall(x)                              \
-    [&]() {                                      \
-      GLClearErrors();                           \
-      auto retVal = x;                           \
-      assert(GLLogCall(#x, __FILE__, __LINE__)); \
-      return retVal;                             \
+
+  #define GLCall(x)                                            \
+    [&]() {                                                    \
+      GLClearErrors();                                         \
+      auto retVal = x;                                         \
+      if (GLLogCall(#x, __FILE__, __LINE__)) __builtin_trap(); \
+      return retVal;                                           \
     }()
 
 #else
@@ -31,8 +31,8 @@ static void GLClearErrors() {
 
 static bool GLLogCall(const char* function, const char* file, int line) {
   while (GLenum error = glGetError()) {
-    std::cout << "[OpenGL Error] (" << error << ") " << function << " " << file << ":" << line << std::endl;
-    return false;
+    std::cerr << "[OpenGL Error] (" << error << ") " << function << " " << file << ":" << line << std::endl;
+    return true;
   }
-  return true;
+  return false;
 }

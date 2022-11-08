@@ -23,12 +23,12 @@ Texture2D::Texture2D(int width, int height, unsigned char* data, Texture::Format
   GLCallV(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, m_WrapR));
   GLCallV(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_WrapS));
 
-  GLCallV(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_Data));
+  GLCallV(glTexImage2D(GL_TEXTURE_2D, 0, m_TextureFormat, m_Width, m_Height, 0, m_ImageFormat, GL_UNSIGNED_BYTE, m_Data));
 
   GLCallV(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-Texture2D::~Texture2D() { GLCallV(glDeleteTextures(1, &m_ID)); }
+Texture2D::~Texture2D() {} // GLCallV(glDeleteTextures(1, &m_ID));
 
 void Texture2D::Bind(unsigned int slot) const {
   GLCallV(glActiveTexture(GL_TEXTURE0 + slot));
@@ -36,6 +36,8 @@ void Texture2D::Bind(unsigned int slot) const {
 }
 
 void Texture2D::Unbind() const { GLCallV(glBindTexture(GL_TEXTURE_2D, 0)); }
+
+unsigned int Texture2D::GetID() const { return m_ID; }
 
 void Texture2D::SetTextureFormat(Texture::Format format) { m_TextureFormat = format; }
 void Texture2D::SetImageFormat(Texture::Format format) { m_ImageFormat = format; }

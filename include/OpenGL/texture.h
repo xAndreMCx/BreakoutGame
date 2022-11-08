@@ -35,6 +35,8 @@ public:
   void Bind(unsigned int slot = 0) const;
   void Unbind() const;
 
+  unsigned int GetID() const;
+
   void SetTextureFormat(Texture::Format format);
   void SetImageFormat(Texture::Format format);
 };

@@ -1,15 +1,15 @@
 #include "OpenGL/shader.h"
 
 #include <fstream>
+#include <glm/gtc/type_ptr.hpp>
 #include <memory>
 #include <sstream>
 
 #include "OpenGL/debug.h"
 
-Shader::Shader() : m_ID(0), m_UniformLocationCache() {}
+Shader::Shader() : m_ID(0) {}
 
-Shader::Shader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode, const std::string& geometryShaderCode)
-    : m_ID(0), m_UniformLocationCache() {
+Shader::Shader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode, const std::string& geometryShaderCode) : m_ID(0) {
   m_ID = CreateShader(vertexShaderCode, fragmentShaderCode, geometryShaderCode);
 }
 
@@ -17,11 +17,15 @@ unsigned int Shader::CreateShader(const std::string& vertexShaderCode, const std
   unsigned int program = GLCall(glCreateProgram());
   unsigned int vertexShader = CompileShader(GL_VERTEX_SHADER, vertexShaderCode);
   unsigned int fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
-  unsigned int geometryShader = (!geometryShaderCode.empty()) ? CompileShader(GL_GEOMETRY_SHADER, geometryShaderCode) : 0;
+  unsigned int geometryShader = 0;
+
+  if (!geometryShaderCode.empty()) {
+    unsigned int geometryShader = CompileShader(GL_GEOMETRY_SHADER, geometryShaderCode);
+    GLCallV(glAttachShader(program, geometryShader));
+  }
 
   GLCallV(glAttachShader(program, vertexShader));
   GLCallV(glAttachShader(program, fragmentShader));
-  GLCallV(glAttachShader(program, geometryShader));
   GLCallV(glLinkProgram(program));
   GLCallV(glValidateProgram(program));
 
@@ -55,17 +59,21 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
     GLCallV(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
     std::unique_ptr<char[]> infoLog = std::make_unique<char[]>(length);
     GLCallV(glGetShaderInfoLog(id, length, NULL, infoLog.get()));
+    // TODO: add error message for geometry shader
     std::cout << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << " Shader failed to compile:\n" << infoLog.get() << std::endl;
     GLCallV(glDeleteShader(id));
     return 0;
   }
   return id;
 }
-Shader::~Shader() { GLCallV(glDeleteProgram(m_ID)); }
+
+Shader::~Shader() {} // GLCallV(glDeleteProgram(m_ID));
 
 void Shader::Bind() const { GLCallV(glUseProgram(m_ID)); }
 
 void Shader::Unbind() const { GLCallV(glUseProgram(0)); }
+
+unsigned int Shader::GetID() const { return m_ID; }
 
 int Shader::GetUniformLocation(const std::string& name) {
   if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end()) {
@@ -88,3 +96,7 @@ void Shader::SetUniform3f(const std::string& name, float v0, float v1, float v2)
 void Shader::SetUniform3f(const std::string& name, glm::vec3 value) { GLCallV(glUniform3f(GetUniformLocation(name), value.x, value.y, value.z)); }
 
 void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3) { GLCallV(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3)); }
+
+void Shader::SetUniform4m(const std::string& name, const glm::mat4& value) {
+  GLCallV(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(value)));
+}

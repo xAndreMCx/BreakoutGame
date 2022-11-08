@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "OpenGL/debug.h"
 #include "OpenGL/shader.h"
 #include "OpenGL/texture.h"
 
@@ -29,14 +30,17 @@ Shader ResourceManager::GetShader(const std::string& shaderName) { return Shader
 Texture2D ResourceManager::GetTexture(const std::string& textureName) { return Textures[textureName]; }
 
 // // TODO: Make sure shaders and textures gets destroyed
-// void ResourceManager::Clear() {
-//   // (properly) delete all shaders
-//   for (auto _shader : Shaders) {
-//     _shader
-//   }
-//   // (properly) delete all textures
-//   for (auto iter : Textures) GLCallV(glDeleteTextures(1, &iter.second.ID));
-// }
+void ResourceManager::Clear() {
+  // (properly) delete all shaders
+  for (auto iter : Shaders) {
+    GLCallV(glDeleteProgram(iter.second.GetID()));
+  }
+  // (properly) delete all textures
+  for (auto iter : Textures) {
+    unsigned int id = iter.second.GetID();
+    GLCallV(glDeleteTextures(1, &id));
+  }
+}
 
 std::string ResourceManager::LoadShaderCode(const std::string& filePath) {
   std::string shaderCode{""};
